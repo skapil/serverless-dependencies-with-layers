@@ -1,0 +1,26 @@
+service: aws-python3
+
+provider:
+  name: aws
+  runtime: python3.7
+  stage: skapil
+  region: us-west-2
+
+layers:
+  Netdev:
+    path: layers/netdev
+    name: ${self:service}-Python37-Netdev
+    description: Netdev with python37
+    compatibleRuntimes:
+      - python3.7
+    allowedAccounts:
+      - "*"
+
+package:
+  individually: true
+
+functions:
+  hello:
+    handler: handler.hello
+    layers: 
+      - {Ref: NetdevLambdaLayer}

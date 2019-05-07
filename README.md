@@ -1,2 +1,2 @@
-# serverless-dependencies-with-layers
-Deploy server less dependencies with third party dependencies in a layer
+# python-serverless-with-dependencies
+Python serverless project with dependencies
