@@ -1,0 +1,300 @@
+{
+  "service": {
+    "service": "aws-python3",
+    "serviceObject": {
+      "name": "aws-python3"
+    },
+    "provider": {
+      "stage": "skapil",
+      "region": "us-west-2",
+      "variableSyntax": "\\${([ ~:a-zA-Z0-9._@'\",\\-\\/\\(\\)]+?)}",
+      "name": "aws",
+      "runtime": "python3.7",
+      "versionFunctions": true,
+      "remoteFunctionData": null,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "HelloLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/aws-python3-skapil-hello"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "skapil",
+                        "aws-python3",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/aws-python3-skapil-hello:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/aws-python3-skapil-hello:*:*"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "aws-python3",
+                    "skapil",
+                    "us-west-2",
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "NetdevLambdaLayer": {
+            "Type": "AWS::Lambda::LayerVersion",
+            "Properties": {
+              "Content": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/aws-python3/skapil/1557248702018-2019-05-07T17:05:02.018Z/Netdev.zip"
+              },
+              "LayerName": "aws-python3-Python37-Netdev",
+              "Description": "Netdev with python37",
+              "CompatibleRuntimes": [
+                "python3.7"
+              ]
+            }
+          },
+          "NetdevWildLambdaLayerPermission": {
+            "Type": "AWS::Lambda::LayerVersionPermission",
+            "Properties": {
+              "Action": "lambda:GetLayerVersion",
+              "LayerVersionArn": {
+                "Ref": "NetdevLambdaLayer"
+              },
+              "Principal": "*"
+            }
+          },
+          "HelloLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/aws-python3/skapil/1557248702018-2019-05-07T17:05:02.018Z/hello.zip"
+              },
+              "FunctionName": "aws-python3-skapil-hello",
+              "Handler": "handler.hello",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "python3.7",
+              "Timeout": 6,
+              "Layers": [
+                {
+                  "Ref": "NetdevLambdaLayer"
+                }
+              ]
+            },
+            "DependsOn": [
+              "HelloLogGroup",
+              "IamRoleLambdaExecution"
+            ]
+          },
+          "HelloLambdaVersionjtleilFho4yT9f7ZVtRIDZ616iguTbzJ87Up8oFow": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "HelloLambdaFunction"
+              },
+              "CodeSha256": "JrR8QjcrBqS5qVoexRcDd6NeajhKl4VFH149J5a4kgI="
+            }
+          },
+          "helloLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "MemorySize": 128,
+              "Timeout": 5
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            }
+          },
+          "NetdevLambdaLayerQualifiedArn": {
+            "Description": "Current Lambda layer version",
+            "Value": {
+              "Ref": "NetdevLambdaLayer"
+            }
+          },
+          "HelloLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "HelloLambdaVersionjtleilFho4yT9f7ZVtRIDZ616iguTbzJ87Up8oFow"
+            }
+          }
+        }
+      },
+      "coreCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "custom": {
+      "pythonRequirements": {
+        "dockerizePip": "non-linux"
+      }
+    },
+    "plugins": [
+      "serverless-python-requirements"
+    ],
+    "pluginsData": {},
+    "functions": {
+      "hello": {
+        "handler": "handler.hello",
+        "layers": [
+          {
+            "Ref": "NetdevLambdaLayer"
+          }
+        ],
+        "events": [],
+        "name": "aws-python3-skapil-hello",
+        "module": ".",
+        "package": {
+          "artifact": "/Users/skapil/Documents/work/other/py/python-serverless-with-dependencies/.serverless/hello.zip"
+        },
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "python3.7",
+        "vpc": {}
+      }
+    },
+    "resources": {
+      "Resources": {
+        "helloLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "MemorySize": 128,
+            "Timeout": 5
+          }
+        }
+      },
+      "Outputs": {}
+    },
+    "layers": {
+      "Netdev": {
+        "path": "layers/netdev",
+        "name": "aws-python3-Python37-Netdev",
+        "description": "Netdev with python37",
+        "compatibleRuntimes": [
+          "python3.7"
+        ],
+        "allowedAccounts": [
+          "*"
+        ],
+        "package": {
+          "artifact": "/Users/skapil/Documents/work/other/py/python-serverless-with-dependencies/.serverless/Netdev.zip"
+        }
+      }
+    }
+  },
+  "package": {
+    "individually": true,
+    "artifactDirectoryName": "serverless/aws-python3/skapil/1557248702018-2019-05-07T17:05:02.018Z",
+    "artifact": ""
+  }
+}
